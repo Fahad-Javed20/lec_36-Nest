@@ -1,78 +1,62 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { InMemoryDatabase } from 'src/database/in-memory-database';
+
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    {
-      userId: 1,
-      username: 'john_doe',
-      password: 'password123',
-      name: 'John Doe',
-      role: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      userId: 2,
-      username: 'jane_smith',
-      password: 'securepass',
-      name: 'Jane Smith',
-      role: 'user',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      userId: 3,
-      username: 'bob_jones',
-      password: 'letmein',
-      name: 'Bob Jones',
-      role: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
+  constructor(private readonly database: InMemoryDatabase) {}
+
   create(createUserDto: CreateUserDto) {
+    const users = this.database.getUsers();
+
     const newUser = {
-      userId: this.users.length + 1,
+      userId: users.length + 1,
       ...createUserDto,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    this.users.push(newUser);
+
+    this.database.addUser(newUser);
     return newUser;
   }
 
   findAll() {
-    return this.users;
+    return this.database.getUsers();
   }
 
   findOne(id: number) {
-    return this.users.find((user) => user.userId === id);
+    return this.database.getUserById(id);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    const userIndex = this.users.findIndex((user) => user.userId === id);
+    const users = this.database.getUsers();
+    const userIndex = users.findIndex((user) => user.userId === id);
+
     if (userIndex === -1) {
       return null;
     }
+
     const updatedUser = {
-      ...this.users[userIndex],
+      ...users[userIndex],
       ...updateUserDto,
       updatedAt: new Date(),
     };
-    this.users[userIndex] = updatedUser;
+
+    this.database.updateUser(id, updatedUser);
     return updatedUser;
   }
 
   remove(id: number) {
-    const userIndex = this.users.findIndex((user) => user.userId === id);
+    const users = this.database.getUsers();
+    const userIndex = users.findIndex((user) => user.userId === id);
+
     if (userIndex === -1) {
       return null;
     }
-    const deletedUser = this.users[userIndex];
-    this.users.splice(userIndex, 1);
+
+    const deletedUser = users[userIndex];
+    this.database.deleteUser(id);
     return deletedUser;
   }
 }
