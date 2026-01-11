@@ -1,36 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/users/entities/user.entity';
+
 @Injectable()
 export class InMemoryDatabase {
-  private users: User[] = [
-    {
-      userId: 1,
-      username: 'john_doe',
-      password: 'password123',
-      name: 'John Doe',
-      role: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      userId: 2,
-      username: 'jane_smith',
-      password: 'securepass',
-      name: 'Jane Smith',
-      role: 'user',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      userId: 3,
-      username: 'bob_jones',
-      password: 'letmein',
-      name: 'Bob Jones',
-      role: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
+  private users: User[] = [];
 
   getUsers(): User[] {
     return this.users;
@@ -65,5 +38,9 @@ export class InMemoryDatabase {
     const deletedUser = this.users[userIndex];
     this.users.splice(userIndex, 1);
     return deletedUser;
+  }
+
+  seedUsers(users: User[]): void {
+    this.users = users;
   }
 }
